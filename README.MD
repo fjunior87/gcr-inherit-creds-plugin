@@ -4,6 +4,7 @@ Simple drone plugin for build and push a docker image to GCR inheriting the cred
 
 ## Requirements
 * It must be running in GCP in a workload with a Service Account associated with it;
+* It needs to have a docker service in the pipeline;
 
 ## Disclaimer
 * It was tested only in GKE;
