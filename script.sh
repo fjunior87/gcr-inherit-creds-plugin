@@ -7,24 +7,18 @@ if ($PLUGIN_DEBUG = "true"); then
     echo "Registry: $PLUGIN_REGISTRY"
 fi
 
-METADATA=http://metadata.google.internal./computeMetadata/v1
-SVC_ACCT=$METADATA/instance/service-accounts/default
-ACCESS_TOKEN=$(curl -H 'Metadata-Flavor: Google' $SVC_ACCT/token \
-    | cut -d'"' -f 4)
-
-docker login -u '_token' -p $ACCESS_TOKEN https://$PLUGIN_REGISTRY
+#using gcloud to authenticate against gcr
+gcloud auth configure-docker --quiet
 
 TAGS=${PLUGIN_TAG:-""}
 DOCKER_CTX=${PLUGIN_CONTEXT:-"."}
 REPO=${PLUGIN_REPOSITORY:-""}
 
-#build image and get the image ID
-ID=$(docker build -f ${PLUGIN_DOCKERFILE:-"Dockerfile"} -q  $DOCKER_CTX)
-echo "Built Image id: $ID"
+docker build -f ${PLUGIN_DOCKERFILE:-"Dockerfile"} -t $REPO $DOCKER_CTX
 IFS=","
 for v in $TAGS
 do
-  docker tag $ID $REPO:$v
+  docker tag $REPO $REPO:$v
 done
 
 for v in $TAGS
